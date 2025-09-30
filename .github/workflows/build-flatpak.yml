@@ -1,0 +1,60 @@
+on:
+  push:
+    paths:
+      - 'flumi/**'
+      - '.github/workflows/build-flumi.yml'
+      - '.github/workflows/build-flatpak.yml'
+  pull_request:
+    paths:
+      - 'flumi/**'
+      - '.github/workflows/build-flumi.yml'
+      - '.github/workflows/build-flatpak.yml'
+  workflow_dispatch:
+
+jobs:
+  pack:
+    name: Package a Flatpak
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Download Flumi artifacts
+        if: github.event.inputs.download_artifacts == 'true' || github.event_name == 'push'
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build-flumi.yml
+          name_is_regexp: true
+          name: flumi-.*
+          path: artifacts/
+          if_no_artifact_found: warn
+          branch: main
+      - name: Download Flatpak and builder
+        run: |
+          sudo apt update
+          sudo apt install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      - name: Set up package directory
+        run: |
+          mkdir -p FlumiFlatpak/bin
+          cp artifacts/* FlumiFlatpak/bin
+          cat > FlumiFlatpak/manifest.json <<'EOF'
+          {
+            "id": "com.outpoot.Flumi",
+            "runtime": "org.freedesktop.Platform",
+            "runtime-version": "23.08",
+            "sdk": "org.freedesktop.Sdk",
+            "command": "flumi",
+            "modules": [
+              { "name": "flumi", "buildsystem": "simple", "build-commands": ["install -D bin/* /app/bin/"] }
+            ]
+          }
+          EOF
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install fp FlumiFlatpak/manifest.json
+          flatpak build-bundle repo flumi.flatpak com.outpoot.Flumi --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+      - uses: actions/upload-artifact@v4.6.2
+        with:
+          name: flatpak
+          path: flumi.flatpak
+          
+          
