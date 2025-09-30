@@ -42,9 +42,25 @@ jobs:
             "runtime": "org.freedesktop.Platform",
             "runtime-version": "23.08",
             "sdk": "org.freedesktop.Sdk",
-            "command": "flumi",
+            "command": "Flumi",
             "modules": [
-              { "name": "flumi", "buildsystem": "simple", "build-commands": ["install -D FlumiFlatpak/bin/* /app/bin/"] }
+              {
+                "name": "flumi",
+                "buildsystem": "simple",
+                "sources": [
+                  {
+                    "type": "dir",
+                    "path": "FlumiFlatpak/bin"
+                  }
+                ],
+                "build-commands": [
+                  "install -D Flumi /app/bin/Flumi",
+                  "install -D Flumi.pck /app/bin/Flumi.pck",
+                  "install -D libgdluau.linux.template_release.x86_64.so /app/bin/libgdluau.linux.template_release.x86_64.so",
+                  "install -D libgodot-flexbox.linux.template_release.x86_64.so /app/bin/libgodot-flexbox.linux.template_release.x86_64.so",
+                  "install -D libgurt_godot.so /app/bin/libgurt_godot.so"
+                ]
+              }
             ]
           }
           EOF
