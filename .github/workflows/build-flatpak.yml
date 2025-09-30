@@ -36,7 +36,7 @@ jobs:
         run: |
           mkdir -p FlumiFlatpak/bin
           cp artifacts/flumi-linux/* FlumiFlatpak/bin
-          cat > FlumiFlatpak/manifest.json <<'EOF'
+          cat > manifest.json <<'EOF'
           {
             "id": "com.outpoot.Flumi",
             "runtime": "org.freedesktop.Platform",
@@ -44,13 +44,13 @@ jobs:
             "sdk": "org.freedesktop.Sdk",
             "command": "flumi",
             "modules": [
-              { "name": "flumi", "buildsystem": "simple", "build-commands": ["install -D bin/* /app/bin/"] }
+              { "name": "flumi", "buildsystem": "simple", "build-commands": ["install -D FlumiFlatpak/bin/* /app/bin/"] }
             ]
           }
           EOF
       - name: Build Flatpak
         run: |
-          flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install fp FlumiFlatpak/manifest.json
+          flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install fp manifest.json
           flatpak build-bundle repo flumi.flatpak com.outpoot.Flumi --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
       - uses: actions/upload-artifact@v4.6.2
         with:
