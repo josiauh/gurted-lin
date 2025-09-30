@@ -40,8 +40,8 @@ jobs:
           {
             "id": "com.outpoot.Flumi",
             "runtime": "org.freedesktop.Platform",
-            "runtime-version": "23.08",
-            "sdk": "org.freedesktop.Sdk",
+            "runtime-version": "49",
+            "sdk": "org.gnome.Sdk",
             "command": "Flumi",
             "modules": [
               {
