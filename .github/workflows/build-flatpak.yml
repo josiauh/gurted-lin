@@ -39,7 +39,7 @@ jobs:
           cat > manifest.json <<'EOF'
           {
             "id": "com.outpoot.Flumi",
-            "runtime": "org.freedesktop.Platform",
+            "runtime": "org.gnome.Platform",
             "runtime-version": "49",
             "sdk": "org.gnome.Sdk",
             "command": "Flumi",
