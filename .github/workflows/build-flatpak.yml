@@ -35,7 +35,7 @@ jobs:
       - name: Set up package directory
         run: |
           mkdir -p FlumiFlatpak/bin
-          cp artifacts/* FlumiFlatpak/bin
+          cp artifacts/flumi-linux/* FlumiFlatpak/bin
           cat > FlumiFlatpak/manifest.json <<'EOF'
           {
             "id": "com.outpoot.Flumi",
