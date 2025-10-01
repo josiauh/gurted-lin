@@ -144,10 +144,19 @@ jobs:
     - name: Download Flatpak and builder
       if: matrix.os == 'ubuntu-latest'
       run: |
-        sudo apt update
-        sudo apt install -y flatpak flatpak-builder
+        sudo apt-get -qq install -y flatpak flatpak-builder
         flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       continue-on-error: true
+    - name: Cache Flatpak SDK + Runtime
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.local/share/flatpak
+          ~/.var/app
+        key: ${{ runner.os }}-flatpak-sdk-${{ hashFiles('manifest.json') }}
+        restore-keys: |
+          ${{ runner.os }}-flatpak-sdk-
     - name: Set up package manifest
       if: matrix.os == 'ubuntu-latest'
       continue-on-error: true
@@ -199,4 +208,5 @@ jobs:
         name: flumi-${{ matrix.platform }}
         path: flumi-builds/${{ matrix.platform }}
         retention-days: 30
+
 
