@@ -157,6 +157,15 @@ jobs:
         key: ${{ runner.os }}-flatpak-sdk-${{ hashFiles('manifest.json') }}
         restore-keys: |
           ${{ runner.os }}-flatpak-sdk-
+    - name: Cache Build Dir
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/cache@v4
+      with:
+        path: |
+          fp
+        key: ${{ runner.os }}-flatpak-build-${{ hashFiles('manifest.json') }}
+        restore-keys: |
+          ${{ runner.os }}-flatpak-build-
     - name: Set up package manifest
       if: matrix.os == 'ubuntu-latest'
       continue-on-error: true
@@ -200,7 +209,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       continue-on-error: true
       run: |
-        flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install fp manifest.json
+        flatpak-builder --user --install-deps-from=flathub --repo=repo --install fp manifest.json
         flatpak build-bundle repo flumi-builds/linux/flumi.flatpak com.outpoot.Flumi --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
     - name: Upload Flumi artifacts
       uses: actions/upload-artifact@v4
@@ -208,5 +217,6 @@ jobs:
         name: flumi-${{ matrix.platform }}
         path: flumi-builds/${{ matrix.platform }}
         retention-days: 30
+
 
 
