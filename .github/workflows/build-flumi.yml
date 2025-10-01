@@ -141,10 +141,62 @@ jobs:
           echo "Export failed - no output file found"
           exit 1
         fi
-
+    - name: Download Flatpak and builder
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt update
+        sudo apt install -y flatpak flatpak-builder
+        flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      continue-on-error: true
+    - name: Set up package manifest
+      if: matrix.os == 'ubuntu-latest'
+      continue-on-error: true
+      run: |
+        cat > manifest.json <<'EOF'
+        {
+          "id": "com.outpoot.Flumi",
+          "runtime": "org.gnome.Platform",
+          "runtime-version": "49",
+          "sdk": "org.gnome.Sdk",
+          "command": "Flumi",
+          "finish-args": [
+            "--persist=Flumi",
+            "--share=network",
+            "--filesystem=xdg-download",
+            "--socket=x11",
+            "--socket=wayland"
+          ],
+          "modules": [
+            {
+              "name": "flumi",
+              "buildsystem": "simple",
+              "sources": [
+                {
+                  "type": "dir",
+                  "path": "flumi-builds/linux"
+                }
+              ],
+              "build-commands": [
+                "install -D Flumi /app/bin/Flumi",
+                "install -D Flumi.pck /app/bin/Flumi.pck",
+                "install -D libgdluau.linux.template_release.x86_64.so /app/bin/libgdluau.linux.template_release.x86_64.so",
+                "install -D libgodot-flexbox.linux.template_release.x86_64.so /app/bin/libgodot-flexbox.linux.template_release.x86_64.so",
+                "install -D libgurt_godot.so /app/bin/libgurt_godot.so"
+              ]
+            }
+          ]
+        }
+        EOF
+    - name: Build Flatpak
+      if: matrix.os == 'ubuntu-latest'
+      continue-on-error: true
+      run: |
+        flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install fp manifest.json
+        flatpak build-bundle repo flumi-builds/linux/flumi.flatpak com.outpoot.Flumi --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
     - name: Upload Flumi artifacts
       uses: actions/upload-artifact@v4
       with:
         name: flumi-${{ matrix.platform }}
         path: flumi-builds/${{ matrix.platform }}
         retention-days: 30
+
