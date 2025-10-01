@@ -43,6 +43,13 @@ jobs:
             "runtime-version": "49",
             "sdk": "org.gnome.Sdk",
             "command": "Flumi",
+            "finish-args": [
+              "--persist=Flumi",
+              "--share=network",
+              "--filesystem=xdg-download",
+              "--socket=x11",
+              "--socket=wayland"
+            ],
             "modules": [
               {
                 "name": "flumi",
